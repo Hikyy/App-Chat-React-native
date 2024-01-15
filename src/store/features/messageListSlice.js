@@ -9,6 +9,14 @@ export const messageListSlice = createSlice({
   initialState,
   reducers: {
     addMessage: (state, action) => {
+      if (state.messages.length > 0) {
+        for (const message of state.messages) {
+          if (message.id === action.payload.id) {
+            return;
+          }
+        }
+      }
+
       return {
         ...state,
         messages: [...state.messages, action.payload],

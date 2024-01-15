@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   },
 
   usernameInput: {
-    marginTop: 40,
+    marginTop: '10%',
     width: '80%',
     marginLeft: 25,
     fontSize: 16,

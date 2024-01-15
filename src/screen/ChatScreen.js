@@ -19,6 +19,7 @@ const ChatScreen = ({route, navigation}) => {
   const messageList = useSelector(state => state.messageList);
   const [message, setMessage] = useState('');
   const {idConversation} = route.params;
+  let conversation;
 
   const {
     image,
@@ -43,6 +44,12 @@ const ChatScreen = ({route, navigation}) => {
     messages.forEach(data => {
       dispatch(addMessage(data));
     });
+
+    conversation = messageList.messages.filter(
+      (message) => message.sender_id === id || message.sender_id === idConversation
+    );
+
+    console.log(conversation);
   };
 
   useEffect(() => {

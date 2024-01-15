@@ -8,63 +8,60 @@ import {
   StyleSheet,
   Button,
   Pressable,
-  
 } from 'react-native';
-import { jsonApi } from '../helper/jsonApi';
+import {jsonApi} from '../helper/jsonApi';
 import {fetchApi} from '../helper/fetch';
-import { useDispatch, useSelector } from 'react-redux';
-import {addUser} from '../store/features/userListSlice';
+import {useDispatch, useSelector} from 'react-redux';
 
 export default function ConversationListScreen({navigation}) {
-  jsonApi.data.attributes = {
-    "Username" :""
-  };
   const dispatch = useDispatch();
-
-  const [conversationList, setConversationList] = useState(useSelector(state => state.conversationList));
+  let response = null;
   const [userList, setUserList] = useState([]);
+  const [conversationList, setConversationList] = useState(
+    useSelector(state => state.conversationList),
+  );
 
-  async function handleKeyDown(text){
-    console.log(text)
-    setUserList([]);
+  async function handleKeyDown(text) {
+    jsonApi.data.attributes = {
+      Username: '',
+    };
 
-    if(text.length > 3){
-      jsonApi.data.attributes.Username = text
-      try{
+    if (text.length >= 2) {
+      jsonApi.data.attributes.Username = text;
+      response = await fetchApi('POST', 'get-user', jsonApi);
+
+      if (response != null) {
+        const users = response.map(item => item.data);
+        setUserList(users);
+        console.log('userList => ', userList);
+      } else {
         setUserList([]);
-
-        let response = await fetchApi('POST', 'get-user', jsonApi);
-        if(response != null){
-          const users = response.map(item => item.data);
-          setUserList(users);
-          console.log("userList => ", userList)
-        }else{
-          setUserList([]);
-
-        }
-      }catch(error){
-        console.error(error)
       }
     }
   }
 
   const RenderUserList = () => {
-    if (userList.length === 0) {
+    if (userList.length === 0 && response !== null) {
       return <Text>Aucun utilisateur trouvé.</Text>;
-    }
-    else{
-
+    } else {
       return (
         <View style={researchedUserWrapper}>
-          {userList.map((item) => (
-            <Button onPress={() => navigation.navigate('chats', {id: item.id})} style={researchedUser} title={item.username} key={item.id}></Button>
+          {userList.map(item => (
+            <Button
+              onPress={() =>
+                navigation.navigate('chats', {idConversation: item.id})
+              }
+              style={researchedUser}
+              title={item.username}
+              key={item.id}
+            />
           ))}
         </View>
       );
     }
   };
 
-  console.log("conversation list", conversationList)
+  console.log('conversation list', conversationList);
   const {
     itemContainerStyle,
     imageStyle,
@@ -78,15 +75,15 @@ export default function ConversationListScreen({navigation}) {
     contentMessageText,
     inputSearch,
     researchedUser,
-    researchedUserWrapper
+    researchedUserWrapper,
   } = styles;
 
   return (
     <View style={{flex: 1}}>
       <Text style={activeHeadline}>Active</Text>
       <TextInput
-      style={inputSearch}
-        onChangeText={(text) => handleKeyDown(text)}
+        style={inputSearch}
+        onChangeText={text => handleKeyDown(text)}
         keyboardType="default"
         placeholder="Entrer un nom d'utilisateur"
       />
@@ -97,29 +94,32 @@ export default function ConversationListScreen({navigation}) {
         renderItem={({item}) => {
           return (
             <>
-
-            <Pressable
-              onPress={() => navigation.navigate('chats', {idConversation: 2})}
-              title="Go">
-              <View style={itemContainerStyle}>
-                <Image
-                  style={imageStyle}
-                  source={require('./public/ellipse-2.png')}
-                />
-                <View style={usernameStyle}>
-                  <Text style={usernameText}>{item.receiver_username}</Text>
-                  <View>
-                    <Text style={contentMessageText}>{item.message}</Text>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('chats', {
+                    idConversation: item.receiver_id,
+                  })
+                }
+                title="Go">
+                <View style={itemContainerStyle}>
+                  <Image
+                    style={imageStyle}
+                    source={require('./public/ellipse-2.png')}
+                  />
+                  <View style={usernameStyle}>
+                    <Text style={usernameText}>{item.receiver_username}</Text>
+                    <View>
+                      <Text style={contentMessageText}>{item.message}</Text>
+                    </View>
+                    <Text style={loggedInText}>Logged inn {Date()}</Text>
                   </View>
-                  <Text style={loggedInText}>Logged inn {Date()}</Text>
+                  <Image
+                    style={arrowStyle}
+                    source={require('../assets/arrow.png')}
+                    resizeMode="contain"
+                  />
                 </View>
-                <Image
-                  style={arrowStyle}
-                  source={require('../assets/arrow.png')}
-                  resizeMode="contain"
-                />
-              </View>
-            </Pressable>
+              </Pressable>
             </>
           );
         }}
@@ -209,40 +209,40 @@ const styles = StyleSheet.create({
   },
   contentMessageText: {
     marginLeft: 20,
-    fontSize: 14
+    fontSize: 14,
   },
   inputSearch: {
-    border: 0,
-    borderBottomWidth: 2, 
+    // border: 0,
+    borderBottomWidth: 2,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderTopWidth: 1,
     padding: 5,
-    borderBottomColor: 'black', 
-    marginTop: 10 , 
+    borderBottomColor: 'black',
+    marginTop: 10,
     marginLeft: 'auto',
     marginRight: 'auto',
-    display: 'block', 
-    width: "75%",
+    // display: 'block',
+    width: '75%',
   },
   researchedUser: {
     marginTop: 5,
     marginBottom: 5,
     padding: 5,
-    marginLeft: "auto",
-    marginRight: "auto",
-    display: "block",
-    color: "gray",
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    // display: 'block',
+    color: 'gray',
     borderBottomWidth: 1,
-    width: "100%",
-    textAlign: "center",
-    backgroundColor: "transparent !important",
-    color: "transparent"
+    width: '100%',
+    textAlign: 'center',
+    backgroundColor: 'transparent !important',
+    color: 'transparent',
   },
   researchedUserWrapper: {
-    width: "75%",
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-  }
+    width: '75%',
+    // display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
 });
