@@ -44,19 +44,14 @@ const ChatScreen = ({route, navigation}) => {
   var ws = new WebSocket(`ws://10.0.2.2.9098/ws/${id}`);
 
   ws.onopen = () => {
-    // connection opened
   };
 
   ws.onmessage = (e) => {
     const messages = e.data.map(item => item.data);
-    console.log("🚀 ~ ChatScreen ~ e.data:", e.data)
 
     messages.forEach(data => {
       dispatch(addMessage(data));
     });
-    console.log("🚀 ~ ChatScreen ~ messages:", messages)
-
-    // a message was received
   };
 
   const fetchData = async () => {
@@ -94,7 +89,6 @@ const ChatScreen = ({route, navigation}) => {
   };
 
   const onButtonPress = async () => {
-    console.log("🚀 ~ onButtonPress ~ idConversation:", idConversation)
 
     const {id} = await getData('user');
 

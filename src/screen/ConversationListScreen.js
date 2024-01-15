@@ -64,8 +64,6 @@ export default function ConversationListScreen({navigation}) {
     }
   };
 
-  console.log('conversation list', conversationList);
-
   const {
     itemContainerStyle,
     imageStyle,

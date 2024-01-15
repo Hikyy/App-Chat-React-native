@@ -21,14 +21,12 @@ export default function SignInScreen({navigation}) {
   const conversation = useSelector(state => state.conversationList);
 
   const connected = async function() {
-    const data = await getData('user')
-    console.log('conversation.conversations', conversation.conversations.length)
+    const data = await getData('user');
 
     if (
       (data.id !== 'undefined' && data.username !== 'undefined')
     && conversation.conversations.length !== 0
     ) {
-      console.log('hiiii !!', conversation.conversations.length !== 0)
       navigation.navigate('conversationList');
     }
   }

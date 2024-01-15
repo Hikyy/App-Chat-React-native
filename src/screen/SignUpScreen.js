@@ -29,7 +29,6 @@ export default function SignUpScreen({navigation}) {
 
 
   async function onButtonPress(event) {
-    console.log('Button');
     jsonApi.data.attributes = {
       email_address: emailAddress,
       username: username,
