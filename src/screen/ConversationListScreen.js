@@ -1,18 +1,70 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Text,
   View,
   Image,
+  TextInput,
   FlatList,
   StyleSheet,
   Button,
   Pressable,
+  
 } from 'react-native';
-import {useSelector} from 'react-redux';
+import { jsonApi } from '../helper/jsonApi';
+import {fetchApi} from '../helper/fetch';
+import { useDispatch, useSelector } from 'react-redux';
+import {addUser} from '../store/features/userListSlice';
 
 export default function ConversationListScreen({navigation}) {
-  const conversationList = useSelector(state => state.conversationList);
+  jsonApi.data.attributes = {
+    "Username" :""
+  };
+  const dispatch = useDispatch();
 
+  const [conversationList, setConversationList] = useState(useSelector(state => state.conversationList));
+  const [userList, setUserList] = useState([]);
+
+  async function handleKeyDown(text){
+    console.log(text)
+    setUserList([]);
+
+    if(text.length > 3){
+      jsonApi.data.attributes.Username = text
+      try{
+        setUserList([]);
+
+        let response = await fetchApi('POST', 'get-user', jsonApi);
+        if(response != null){
+          const users = response.map(item => item.data);
+          setUserList(users);
+          console.log("userList => ", userList)
+        }else{
+          setUserList([]);
+
+        }
+      }catch(error){
+        console.error(error)
+      }
+    }
+  }
+
+  const RenderUserList = () => {
+    if (userList.length === 0) {
+      return <Text>Aucun utilisateur trouvé.</Text>;
+    }
+    else{
+
+      return (
+        <View style={researchedUserWrapper}>
+          {userList.map((item) => (
+            <Button onPress={() => navigation.navigate('chats', {id: item.id})} style={researchedUser} title={item.username} key={item.id}></Button>
+          ))}
+        </View>
+      );
+    }
+  };
+
+  console.log("conversation list", conversationList)
   const {
     itemContainerStyle,
     imageStyle,
@@ -23,15 +75,29 @@ export default function ConversationListScreen({navigation}) {
     activeHeadline,
     signInButton,
     textButton,
+    contentMessageText,
+    inputSearch,
+    researchedUser,
+    researchedUserWrapper
   } = styles;
 
   return (
     <View style={{flex: 1}}>
       <Text style={activeHeadline}>Active</Text>
+      <TextInput
+      style={inputSearch}
+        onChangeText={(text) => handleKeyDown(text)}
+        keyboardType="default"
+        placeholder="Entrer un nom d'utilisateur"
+      />
+      {RenderUserList()}
+
       <FlatList
         data={conversationList.conversations}
         renderItem={({item}) => {
           return (
+            <>
+
             <Pressable
               onPress={() => navigation.navigate('chats', {id: 2})}
               title="Go">
@@ -43,7 +109,7 @@ export default function ConversationListScreen({navigation}) {
                 <View style={usernameStyle}>
                   <Text style={usernameText}>{item.receiver_username}</Text>
                   <View>
-                    <Text>{item.message}</Text>
+                    <Text style={contentMessageText}>{item.message}</Text>
                   </View>
                   <Text style={loggedInText}>Logged inn {Date()}</Text>
                 </View>
@@ -54,6 +120,7 @@ export default function ConversationListScreen({navigation}) {
                 />
               </View>
             </Pressable>
+            </>
           );
         }}
       />
@@ -140,4 +207,42 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 18,
   },
+  contentMessageText: {
+    marginLeft: 20,
+    fontSize: 14
+  },
+  inputSearch: {
+    border: 0,
+    borderBottomWidth: 2, 
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    padding: 5,
+    borderBottomColor: 'black', 
+    marginTop: 10 , 
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: 'block', 
+    width: "75%",
+  },
+  researchedUser: {
+    marginTop: 5,
+    marginBottom: 5,
+    padding: 5,
+    marginLeft: "auto",
+    marginRight: "auto",
+    display: "block",
+    color: "gray",
+    borderBottomWidth: 1,
+    width: "100%",
+    textAlign: "center",
+    backgroundColor: "transparent !important",
+    color: "transparent"
+  },
+  researchedUserWrapper: {
+    width: "75%",
+    display: "block",
+    marginLeft: "auto",
+    marginRight: "auto",
+  }
 });
