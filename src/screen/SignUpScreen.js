@@ -27,6 +27,7 @@ export default function SignUpScreen({navigation}) {
     flexButton,
   } = styles;
 
+
   async function onButtonPress(event) {
     console.log('Button');
     jsonApi.data.attributes = {

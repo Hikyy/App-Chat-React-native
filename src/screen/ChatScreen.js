@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { useRoute } from '@react-navigation/native';
+
 import {
   View,
-  Text,
   Image,
   StyleSheet,
   ImageBackground,
-  ScrollView,
   TextInput, FlatList,
+  Button,
+  Text
 } from "react-native";
 import BubbleMessage from '../components/BubbleMessage';
 import {fetchApi} from '../helper/fetch';
 import {getData} from '../helper/storage';
+import {jsonApi} from '../helper/jsonApi';
 import {useDispatch, useSelector} from 'react-redux';
 import {addMessage} from '../store/features/messageListSlice';
 
 const ChatScreen = ({route, navigation}) => {
+  
   const dispatch = useDispatch();
   const messageList = useSelector(state => state.messageList);
   const [message, setMessage] = useState('');
+  const [echo, setEcho] = useState('');
+
   const {idConversation} = route.params;
   let conversation;
 
@@ -29,7 +35,28 @@ const ChatScreen = ({route, navigation}) => {
     imageSend,
     containerInput,
     input,
+    btn
   } = styles;
+
+  const {id} = getData('user');
+
+  var ws = new WebSocket(`ws://10.0.2.2.9098/ws/${id}`);
+
+  ws.onopen = () => {
+    // connection opened
+  };
+
+  ws.onmessage = (e) => {
+    const messages = e.data.map(item => item.data);
+    console.log("🚀 ~ ChatScreen ~ e.data:", e.data)
+
+    messages.forEach(data => {
+      dispatch(addMessage(data));
+    });
+    console.log("🚀 ~ ChatScreen ~ messages:", messages)
+    
+    // a message was received
+  };
 
   const fetchData = async () => {
     const {id} = await getData('user');
@@ -52,11 +79,45 @@ const ChatScreen = ({route, navigation}) => {
     console.log(conversation);
   };
 
+  const onButtonPress = async () => {
+    console.log("🚀 ~ onButtonPress ~ idConversation:", idConversation)
+
+    const {id} = await getData('user');
+
+    jsonApi.data.attributes = {
+      sender_id: id,
+      receiver_id: idConversation,
+      message: message,
+    };
+
+    try{
+      const response = await fetchApi(
+        'POST',
+        `send-message`,
+        jsonApi
+      );
+
+      const messages = response.data.map(item => item.data);
+
+      messages.forEach(data => {
+        dispatch(addMessage(data));
+      });
+      
+    }
+    catch(error){
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     fetchData();
   }, []);
 
   return (
+    <>
+    <View>
+      <Text>{echo}</Text>
+    </View>
     <View style={containerTop}>
       <View style={containerTopImage}>
         <ImageBackground
@@ -84,9 +145,15 @@ const ChatScreen = ({route, navigation}) => {
           onChangeText={text => setMessage(text)}
           value={message}
         />
-        <Image style={imageSend} source={require('./public/send.png')} />
+        <Button
+          title="Envoyer"
+          style={btn}
+          onPress={() => onButtonPress()}>
+          Sign In
+        </Button>
       </View>
     </View>
+    </>
   );
 };
 
@@ -123,7 +190,6 @@ const styles = StyleSheet.create({
   },
   containerInput: {
     borderWidth: 4,
-    borderColor: 'green',
     height: '12%',
     display: 'flex',
     flexDirection: 'row',
@@ -137,7 +203,9 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 250,
     width: '70%',
-    height: '100%',
   },
+  btn: {
+    borderTopLeftRadius: 15
+  }
 });
 export default ChatScreen;
