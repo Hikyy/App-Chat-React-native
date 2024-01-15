@@ -9,7 +9,8 @@ export const conversationListSlice = createSlice({
   initialState,
   reducers: {
     addConversation: (state, action) => {
-      state.conversations = action.payload;
+      console.log('action.payload', action.payload);
+      state.conversations = state.conversations.concat(action.payload);
     },
   },
 });

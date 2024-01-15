@@ -1,6 +1,18 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground, ScrollView, TextInput } from "react-native";
-import BubbleMessage from "../components/BubbleMessage";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ImageBackground,
+  ScrollView,
+  TextInput,
+} from 'react-native';
+import BubbleMessage from '../components/BubbleMessage';
+import {fetchApi} from '../helper/fetch';
+import {getData} from '../helper/storage';
+import {useDispatch, useSelector} from 'react-redux';
+import {addMessage} from '../store/features/messageListSlice';
 
 const styles = StyleSheet.create({
   chatsChild: {
@@ -314,11 +326,35 @@ const styles = StyleSheet.create({
   },
 });
 
-const ChatScreen = ({ navigation }) => {
+const ChatScreen = ({route, navigation}) => {
+  const dispatch = useDispatch();
+  const messageList = useSelector(state => state.messageList);
+  const {id} = route.params;
+
+  const test = async function (id) {
+    console.log('navigation', id);
+
+    const {userId} = await getData('user');
+    console.log('data', userId);
+
+    const response = await fetchApi('GET', `messages/get-all/${userId}/${id}`);
+    console.log('response !!!!', response);
+    response.forEach(data => {
+      dispatch(addMessage(data));
+    });
+
+    console.log('messageListt', messageList);
+  };
+
+  test(id);
+
   return (
     <View style={styles.containerTop}>
       <View style={styles.containerTopImage}>
-        <ImageBackground style={styles.image} source={require('./public/background.png')} />
+        <ImageBackground
+          style={styles.image}
+          source={require('./public/background.png')}
+        />
       </View>
       <View style={styles.containerBottom}>
         <ScrollView>

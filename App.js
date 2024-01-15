@@ -6,6 +6,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import store from './src/store';
 import ChatScreen from './src/screen/ChatScreen';
 import SignUpScreen from './src/screen/SignUpScreen';
+import SignInScreen from './src/screen/SignInScreen';
 import ConversationListScreen from './src/screen/ConversationListScreen';
 
 const ChatStack = createNativeStackNavigator();
@@ -14,17 +15,11 @@ const App = () => {
     <>
       <Provider store={store}>
         <NavigationContainer>
-          <ChatStack.Navigator>
-            <ChatStack.Screen
-              name="signIn"
-              component={SignUpScreen} />
-            <ChatStack.Screen
-              name="conversationList"
-              component={ConversationListScreen}
-            />
-            <ChatStack.Screen
-              name="chats"
-              component={ChatScreen} />
+          <ChatStack.Navigator initialRouteName="signUp">
+            <ChatStack.Screen name="signUp" component={SignUpScreen} />
+            <ChatStack.Screen name="signIn" component={SignInScreen} />
+            <ChatStack.Screen name="conversationList" component={ConversationListScreen} />
+            <ChatStack.Screen name="chats" component={ChatScreen} />
           </ChatStack.Navigator>
         </NavigationContainer>
       </Provider>
@@ -33,5 +28,3 @@ const App = () => {
 };
 
 export default App;
-
-const styles = StyleSheet.create({});

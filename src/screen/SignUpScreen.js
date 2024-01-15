@@ -24,9 +24,11 @@ export default function SignUpScreen({navigation}) {
     textButton,
     signInButton,
     backgroundImage,
+    flexButton,
   } = styles;
 
-  function onButtonPress(event) {
+  async function onButtonPress(event) {
+    console.log('Button');
     jsonApi.data.attributes = {
       email_address: emailAddress,
       username: username,
@@ -43,24 +45,24 @@ export default function SignUpScreen({navigation}) {
       return;
     }
 
-    const response = fetchApi('POST','signup' ,jsonApi);
+    const response = await fetchApi('POST', 'signup', jsonApi);
     jsonApi.data.attributes = {};
+
     if (typeof response.data !== 'undefined') {
-    //   navigation.navigate('');
-      console.log('True');
+      navigation.navigate('signIn');
     }
   }
 
   function onButtonRelease(data) {
-    if (data.email_address === ''){
+    if (data.email_address === '') {
       return false;
     }
 
-    if (data.username === ''){
+    if (data.username === '') {
       return false;
     }
 
-    if (data.password === ''){
+    if (data.password === '') {
       return false;
     }
 
@@ -78,7 +80,7 @@ export default function SignUpScreen({navigation}) {
           source={require('../assets/signIn_cat.png')}
         />
         <View style={{flex: 1}}>
-          <Text style={signInText}>Sign In</Text>
+          <Text style={signInText}>Sign Up</Text>
           <Text style={descriptionText}>
             Please enter a email and username and password to start
           </Text>
@@ -103,14 +105,20 @@ export default function SignUpScreen({navigation}) {
               secureTextEntry={true}
               placeholder="Enter password..."
             />
-            <Button
-              style={signInButton}
-              onPress={() => {
-                onButtonPress();
-              }}
-              title="button">
-              <Text style={textButton}>Get Started</Text>
-            </Button>
+            <View style={flexButton}>
+              <Button
+                style={signInButton}
+                onPress={onButtonPress}
+                title="signUp">
+                <Text style={textButton}>Get Started</Text>
+              </Button>
+              <Button
+                title="signIn"
+                style={signInButton}
+                onPress={() => navigation.navigate('signIn')}>
+                Sign In
+              </Button>
+            </View>
           </ScrollView>
         </View>
         <KeyboardAvoidingView behavior="padding" />
@@ -163,15 +171,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#CF7C77',
     color: '#333',
     marginTop: 50,
-    width: '45%',
+    width: '100%',
     height: 50,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 5,
+    borderColor: 'pink',
   },
   textButton: {
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  flexButton: {
+    borderWidth: 1,
+    borderColor: 'black',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 15,
   },
 });
