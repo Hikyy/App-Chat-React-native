@@ -20,6 +20,21 @@ export default function SignInScreen({navigation}) {
   const dispatch = useDispatch();
   const conversation = useSelector(state => state.conversationList);
 
+  const connected = async function() {
+    const data = await getData('user')
+    console.log('conversation.conversations', conversation.conversations.length)
+
+    if (
+      (data.id !== 'undefined' && data.username !== 'undefined')
+    && conversation.conversations.length !== 0
+    ) {
+      console.log('hiiii !!', conversation.conversations.length !== 0)
+      navigation.navigate('conversationList');
+    }
+  }
+
+  connected()
+
   const {
     signInText,
     descriptionText,
@@ -50,7 +65,6 @@ export default function SignInScreen({navigation}) {
       jsonApi.data.attributes.Sender_id = response.data.id;
 
       response = await fetchApi('POST', 'get-all-chat', jsonApi);
-      console.log('response[0]', response[0]);
 
       const conversations = response.map(item => item.data);
 
@@ -59,9 +73,10 @@ export default function SignInScreen({navigation}) {
       });
 
       // const conversation = selector(state => state.conversationList);
-      // // const data = await getData('user');
+      const data = await getData('user');
+      // console.log('getData', data);
 
-      console.log('!!!!! conversation', conversation);
+      // console.log('!!!!! conversation', conversation);
       navigation.navigate('conversationList');
     }
   }

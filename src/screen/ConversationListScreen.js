@@ -99,7 +99,7 @@ export default function ConversationListScreen({navigation}) {
             <>
 
             <Pressable
-              onPress={() => navigation.navigate('chats', {id: 2})}
+              onPress={() => navigation.navigate('chats', {idConversation: 2})}
               title="Go">
               <View style={itemContainerStyle}>
                 <Image

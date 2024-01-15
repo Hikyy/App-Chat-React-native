@@ -1,8 +1,52 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ImageBackground } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { getData } from '../helper/storage';
+
+const BubbleMessage = ({ idMessage, message, sender }) => {
+  const [classNames, setClassNames] = useState({});
+
+  const {
+    frameGroupLeft,
+    frameGroupRight,
+    frameWrapperr,
+    messageRight,
+    messageLeft,
+    pm,
+    frameDiv,
+  } = styles;
+
+  useEffect(() => {
+    const messageDirection = async () => {
+      const {id} = await getData('user');
+
+      if (id === sender) {
+        setClassNames({
+          frameGroup: frameGroupRight,
+          message: messageRight,
+        });
+      } else {
+        setClassNames({
+          frameGroup: frameGroupLeft,
+          message: messageLeft,
+        });
+      }
+    };
+
+    messageDirection();
+  }, [sender]);
+
+  return (
+    <View style={classNames.frameGroup}>
+      <View style={frameWrapperr}>
+        <Text style={classNames.message}>{message}</Text>
+        <Text style={pm}>11:25PM</Text>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  frameGroup: {
+  frameGroupLeft: {
     alignSelf: 'stretch',
     display: 'flex',
     flexDirection: 'column',
@@ -18,33 +62,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     gap: 10,
   },
-  frameWrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-  },
-  heyHowHaveYouBeenWrapper: {
-    borderRadius: 100,
-    backgroundColor: 'rgba(255, 199, 0, 0.25)',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    padding: 10,
-  },
-  awesomeLetsMeetUpWrapper: {
+  messageLeft: {
     borderRadius: 100,
     backgroundColor: 'rgba(255, 137, 51, 0.25)',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
-    padding: 10,
-  },
-  pranavRay1: {
-    position: 'relative',
-    letterSpacing: -0.02,
+    paddingLeft: 19,
+    paddingRight: 19,
+    paddingTop: 9,
+    paddingBottom: 9,
   },
   // pm: {
   //   position: 'relative',
@@ -61,7 +89,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginLeft: 11,
   },
-  messageLeft: {
+  messageRight: {
     borderRadius: 100,
     backgroundColor: 'rgba(255, 199, 0, 0.25)',
     display: 'flex',
@@ -75,9 +103,10 @@ const styles = StyleSheet.create({
   frameWrapperr: {
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'center',
     gap: 7,
   },
-  frameGroupp: {
+  frameGroupRight: {
     alignSelf: 'stretch',
     display: 'flex',
     flexDirection: 'column',
@@ -86,16 +115,5 @@ const styles = StyleSheet.create({
     marginBottom: 9,
   },
 });
-
-const BubbleMessage = () => {
-  return (
-    <View style={styles.frameGroupp}>
-      <View style={styles.frameWrapperr}>
-        <Text style={styles.messageLeft}>Toto</Text>
-        <Text style={styles.pm}>11:25PM</Text>
-      </View>
-    </View>
-  );
-};
 
 export default BubbleMessage;

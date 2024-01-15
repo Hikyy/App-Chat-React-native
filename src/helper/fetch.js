@@ -13,7 +13,7 @@ export async function fetchApi(method='GET', route, data= null) {
   try {
     let response = await fetch(`http://10.0.2.2:8097/${route}`, options);
     response = await response.json();
-    console.log('Response :', response);
+    console.log('Response ! :', response);
 
     return response;
   } catch (error) {
