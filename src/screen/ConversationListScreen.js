@@ -30,7 +30,7 @@ export default function ConversationListScreen({navigation}) {
       jsonApi.data.attributes.Username = text;
       response = await fetchApi('POST', 'get-user', jsonApi);
 
-      if (Array.isArray(response)) {
+      if (Array.isArray(response) && response.length > 0) {
         const users = response.map(item => {
           if (item !== undefined) {
             return item.data;
@@ -65,6 +65,7 @@ export default function ConversationListScreen({navigation}) {
   };
 
   console.log('conversation list', conversationList);
+
   const {
     itemContainerStyle,
     imageStyle,
