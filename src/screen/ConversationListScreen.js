@@ -26,14 +26,17 @@ export default function ConversationListScreen({navigation}) {
       Username: '',
     };
 
-    if (text.length >= 2) {
+    if (text.length >= 1) {
       jsonApi.data.attributes.Username = text;
       response = await fetchApi('POST', 'get-user', jsonApi);
 
-      if (response != null) {
-        const users = response.map(item => item.data);
+      if (Array.isArray(response)) {
+        const users = response.map(item => {
+          if (item !== undefined) {
+            return item.data;
+          }
+        });
         setUserList(users);
-        console.log('userList => ', userList);
       } else {
         setUserList([]);
       }
@@ -212,7 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   inputSearch: {
-    // border: 0,
     borderBottomWidth: 2,
     borderLeftWidth: 1,
     borderRightWidth: 1,
@@ -222,7 +224,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 'auto',
     marginRight: 'auto',
-    // display: 'block',
     width: '75%',
   },
   researchedUser: {
@@ -231,8 +232,6 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 'auto',
     marginRight: 'auto',
-    // display: 'block',
-    color: 'gray',
     borderBottomWidth: 1,
     width: '100%',
     textAlign: 'center',
@@ -241,7 +240,6 @@ const styles = StyleSheet.create({
   },
   researchedUserWrapper: {
     width: '75%',
-    // display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
   },

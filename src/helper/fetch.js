@@ -1,4 +1,4 @@
-export async function fetchApi(method='GET', route, data= null) {
+export function fetchApi(method='GET', route, data= null) {
   let options = {
     method: method,
     headers: {
@@ -11,8 +11,8 @@ export async function fetchApi(method='GET', route, data= null) {
   }
 
   try {
-    let response = await fetch(`http://10.0.2.2:8097/${route}`, options);
-    response = await response.json();
+    let response = fetch(`http://10.0.2.2:8097/${route}`, options)
+      .then(response => response.json());
     console.log('Response ! :', response);
 
     return response;

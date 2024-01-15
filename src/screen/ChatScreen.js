@@ -18,14 +18,15 @@ import {useDispatch, useSelector} from 'react-redux';
 import {addMessage} from '../store/features/messageListSlice';
 
 const ChatScreen = ({route, navigation}) => {
-  
+
   const dispatch = useDispatch();
   const messageList = useSelector(state => state.messageList);
   const [message, setMessage] = useState('');
+  const [messageFilter, setMessageFilter] = useState([]);
+
   const [echo, setEcho] = useState('');
 
   const {idConversation} = route.params;
-  let conversation;
 
   const {
     image,
@@ -54,29 +55,42 @@ const ChatScreen = ({route, navigation}) => {
       dispatch(addMessage(data));
     });
     console.log("🚀 ~ ChatScreen ~ messages:", messages)
-    
+
     // a message was received
   };
 
   const fetchData = async () => {
-    const {id} = await getData('user');
+    try {
+      const {id} = await getData('user');
 
-    const response = await fetchApi(
-      'GET',
-      `messages/get-all/${id}/${idConversation}`,
-    );
+      const response = await fetchApi(
+        'GET',
+        `messages/get-all/${id}/${idConversation}`,
+      );
 
-    const messages = response.map(item => item.data);
+      const messages = response.map(item => {
+        if (item.data.sender_id === id) {
+          item.data.receiver_id = idConversation;
+        } else {
+          item.data.receiver_id = id;
+        }
+        return item.data;
+      });
 
-    messages.forEach(data => {
-      dispatch(addMessage(data));
-    });
+      messages.forEach(data => {
+        dispatch(addMessage(data));
+      });
 
-    conversation = messageList.messages.filter(
-      (message) => message.sender_id === id || message.sender_id === idConversation
-    );
+      const messageFilterTemp = messageList.messages.filter(
+        message =>
+          (message.receiver_id === id && message.sender_id === idConversation) ||
+          (message.sender_id === id && message.receiver_id === idConversation),
+      );
 
-    console.log(conversation);
+      setMessageFilter(messageFilterTemp);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données:', error);
+    }
   };
 
   const onButtonPress = async () => {
@@ -102,7 +116,7 @@ const ChatScreen = ({route, navigation}) => {
       messages.forEach(data => {
         dispatch(addMessage(data));
       });
-      
+
     }
     catch(error){
       console.log(error)
@@ -111,7 +125,7 @@ const ChatScreen = ({route, navigation}) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData, idConversation]);
 
   return (
     <>
@@ -125,18 +139,17 @@ const ChatScreen = ({route, navigation}) => {
           source={require('./public/background.png')}
         />
       </View>
+
       <View style={containerBottom}>
         <FlatList
-          data={messageList.messages}
-          renderItem={({item}) => {
-            return (
+          data={messageFilter}
+          renderItem={({item}) =>
               <BubbleMessage
-                idMessage={item.id}
-                message={item.message}
-                sender={item.sender_id}
-              />
-            );
-          }}
+              idMessage={item.id}
+              message={item.message}
+              sender={item.sender_id}
+            />
+          }
         />
       </View>
       <View style={containerInput}>

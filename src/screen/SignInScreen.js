@@ -72,11 +72,8 @@ export default function SignInScreen({navigation}) {
         dispatch(addConversation(conversation));
       });
 
-      // const conversation = selector(state => state.conversationList);
       const data = await getData('user');
-      // console.log('getData', data);
 
-      // console.log('!!!!! conversation', conversation);
       navigation.navigate('conversationList');
     }
   }
